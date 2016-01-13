@@ -1,6 +1,7 @@
 package progetto;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import twitter4j.Status;
 import twitter4j.UserMentionEntity;
@@ -16,6 +17,35 @@ public class TwitterBean {
 	private int UTcOffset;
 	private String text;
 	private String mentionedUser;
+	private UserMentionEntity mentions;
+	private Date time; 
+
+	
+	
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public UserMentionEntity getMentions() {
+		return mentions;
+	}
+
+	public void setMentions(UserMentionEntity mentions) {
+		this.mentions = mentions;
+	}
+
+	public Date getTime() {
+		return time;
+	}
+
+	public void setTime(Date time) {
+		this.time = time;
+	}
+
 	public String getMentionedUser() {
 		return mentionedUser;
 	}
@@ -23,10 +53,6 @@ public class TwitterBean {
 	public void setMentionedUser(String mentionedUser) {
 		this.mentionedUser = mentionedUser;
 	}
-
-	private UserMentionEntity mentions;
-
-	
 	
 	public int getFollowersCount() {
 		return followersCount;
@@ -80,7 +106,8 @@ public class TwitterBean {
 		}
 		this.UTcOffset = status.getUser().getUtcOffset();
 		this.timeZone = status.getUser().getTimeZone();
-		this.text = status.getText();		
+		this.text = status.getText();
+		this.time = status.getCreatedAt();
 	}
 
 	public String getLang() {

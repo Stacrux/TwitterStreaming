@@ -1,6 +1,10 @@
 package progetto;
 
 import java.io.File;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.SimpleLayout;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
@@ -37,9 +41,14 @@ public class TwitterStreamCEP {
 
 	public static void main(String[] args) {
 		
+		SimpleLayout layout = new SimpleLayout();
+	    ConsoleAppender appender = new ConsoleAppender(new SimpleLayout());
+	    Logger.getRootLogger().addAppender(appender);
+	    Logger.getRootLogger().setLevel((Level) Level.WARN);
+		
 		try {
 			
-			createEsperRuntime("../ProgettoDB/src/Progetto/query2.epl");
+			createEsperRuntime("../ProgettoDB/src/Progetto/query.epl");
 			listenToTwitterStream(createTwitterStream());
 		} catch (TwitterException | IOException e) {
 			e.printStackTrace();
@@ -50,14 +59,12 @@ public class TwitterStreamCEP {
 		
 		public void update(EventBean[] newData, EventBean[] oldData) {
 			try {
-//				if (newData == null) {
-//					return;
-//				}
+				if (newData[0] == null) {
+					System.out.println("Error, nothing received");
+					return;
+				}
 				EventBean event = newData[0];
-//				System.out.println("EVENT: " + event.get("user") + " " + event.get("timeZone") +  " " + event.get("lang"));
-					//for(EventBean event: newData){
-						System.out.println("EVENT: " + event.getUnderlying());
-					//}
+				System.out.println("Evento ricevuto : " + event.get("user") + " " + event.getUnderlying());
 				} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -85,25 +92,17 @@ public class TwitterStreamCEP {
 	}	
 	
 	/**
-	 * Creates and return object from Twitter stream factory.
-	 * 
+	 * Creates and return object from Twitter stream factory
 	 * @return Twitter stream object.
 	 */
 	public static TwitterStream createTwitterStream() {
-		
 		ConfigurationBuilder builder = new ConfigurationBuilder();
 		builder.setOAuthConsumerKey(CONSUMER_KEY);
 		builder.setOAuthConsumerSecret(CONSUMER_SECRET);
-		//Configuration configuration = (Configuration) builder.build();
-		TwitterStreamFactory factory = new TwitterStreamFactory();
+		builder.setOAuthAccessToken(ACCESS_TOKEN);
+		builder.setOAuthAccessTokenSecret(ACCESS_TOKEN_SECRET);
+		TwitterStreamFactory factory = new TwitterStreamFactory(builder.build());
 		TwitterStream twitterStream = factory.getInstance();
-		
-		//TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
-		// Set access by OAuth
-		//twitterStream.setOAuthConsumer(CONSUMER_KEY, CONSUMER_SECRET);
-		//twitterStream.setOAuthAccessToken(new AccessToken(ACCESS_TOKEN, ACCESS_TOKEN_SECRET));
-
-
 		return twitterStream;
 	}
 	
@@ -121,12 +120,12 @@ public class TwitterStreamCEP {
 
 			@Override
 			public void onStatus(Status status) {
+				//for every mention in the tweet we generate an object
 				UserMentionEntity[] mentions  = status.getUserMentionEntities();
 				for(UserMentionEntity mention : mentions){
 					TwitterBean twitterBean = new TwitterBean(status, mention);				
 					cepRuntime.sendEvent(twitterBean);
 				}
-//				System.out.println(status.getUser().getName() + ": " + status.getText());
 			}
 
 			@Override

@@ -1,3 +1,4 @@
-SELECT mentionedUser
+SELECT count(*)
 FROM TwitterBean.win:time(5)
+group by mentionedUser
 output snapshot every 3 second

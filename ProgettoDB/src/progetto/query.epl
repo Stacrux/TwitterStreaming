@@ -1,9 +1,10 @@
-SELECT mentionedUser, count(*)
-FROM TwitterBean.win:time(60)
-group by mentionedUser
-having count(*) >= all(
+SELECT mentionedUser, count(*), user
+FROM TwitterBean.win:time(60 seconds)
+where lang = 'en'
+GROUP BY mentionedUser
+HAVING count(*) >= ALL(
 	select count(*)
-	from TwitterBean.win:time(60)
+	from TwitterBean.win:time(60 seconds)
 	group by mentionedUser
-)
-output snapshot every 30 seconds
+	)
+output every 30 seconds
