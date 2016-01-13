@@ -39,7 +39,7 @@ public class TwitterStreamCEP {
 		
 		try {
 			
-			createEsperRuntime("/home/martino/workspace/ProgettoDB/src/progetto/query.epl");
+			createEsperRuntime("../ProgettoDB/src/Progetto/query2.epl");
 			listenToTwitterStream(createTwitterStream());
 		} catch (TwitterException | IOException e) {
 			e.printStackTrace();

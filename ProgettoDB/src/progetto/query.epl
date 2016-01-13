@@ -1,7 +1,7 @@
 SELECT mentionedUser, count(*)
 FROM TwitterBean.win:time(60)
 group by mentionedUser
-having count(*) > all(
+having count(*) >= all(
 	select count(*)
 	from TwitterBean.win:time(60)
 	group by mentionedUser
