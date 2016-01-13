@@ -1,0 +1,3 @@
+SELECT mentionedUser
+FROM TwitterBean.win:time(5)
+output snapshot every 3 second
