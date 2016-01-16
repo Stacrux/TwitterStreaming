@@ -1,10 +1,12 @@
 package progetto;
 
 import java.io.File;
+
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.SimpleLayout;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
@@ -18,6 +20,7 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
+import twitter4j.FilterQuery;
 import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
@@ -48,7 +51,7 @@ public class TwitterStreamCEP {
 		
 		try {
 			
-			createEsperRuntime("../ProgettoDB/src/Progetto/query.epl");
+			createEsperRuntime("../ProgettoDB/src/Progetto/query2.epl");
 			listenToTwitterStream(createTwitterStream());
 		} catch (TwitterException | IOException e) {
 			e.printStackTrace();
@@ -59,12 +62,10 @@ public class TwitterStreamCEP {
 		
 		public void update(EventBean[] newData, EventBean[] oldData) {
 			try {
-				if (newData[0] == null) {
-					System.out.println("Error, nothing received");
-					return;
-				}
-				EventBean event = newData[0];
-				System.out.println("Evento ricevuto : " + event.get("user") + " " + event.getUnderlying());
+				if(newData != null){
+					EventBean event = newData[0];
+					System.out.println("The user most mentioned was : " + " " + event.getUnderlying().toString());
+					}
 				} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -155,8 +156,16 @@ public class TwitterStreamCEP {
 			}
 		};
 
+		long 	ansa = 150725695, 
+				masterchef = 222908821,
+				zayn = 176566242,
+				music_as_life = 1693516848,
+				la_zanzara = 409500620; 
+		
+		long[] query = {ansa, masterchef, zayn, music_as_life, la_zanzara};
+		
 		twitterStream.addListener(listener);
-		twitterStream.sample();
+		twitterStream.filter(new FilterQuery(query));
 	}
 
 }

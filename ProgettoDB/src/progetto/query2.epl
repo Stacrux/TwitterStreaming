@@ -1,4 +1,5 @@
-SELECT count(*)
-FROM TwitterBean.win:time(5)
+SELECT user, mentionedUser, count(*) as c
+FROM TwitterBean.win:time(3 seconds)
 group by mentionedUser
-output snapshot every 3 second
+output snapshot every 1.5 seconds
+ORDER BY c DESC
