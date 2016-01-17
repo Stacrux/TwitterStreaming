@@ -42,16 +42,54 @@ public class TwitterStreamCEP {
 	static private String ACCESS_TOKEN="4746987855-79dPGcxhOcalYRVkpDD36gwEa47ShNqarck53tO";
 	static private String ACCESS_TOKEN_SECRET="AEHbX4ddL1vi6j4uTM8y4tkU1Y5c0rRb0OqWub4vhlYuH";
 
+	private static String userInput(){
+		String selection = "Select a query to perform by typing the corresponding number :"+
+				"\n1 - query.epl -> Most mentioned user, window 1 minute, snapshot 30 seconds"+
+				"\n2 - query2.epl -> Most mentioned user, window 3 seconds, snapshot 1.52 seconds";
+		System.out.println(selection);
+	    Scanner input = new Scanner(System.in);
+	    String query = input.nextLine();
+	    boolean condition = false;
+	    if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 2){
+	    	condition = true;
+	    }
+	    while(condition){
+	    	condition = false;
+	    	System.out.println("WRONG INPUT");
+	    	System.out.println(selection);
+	    	query = input.next();
+	    	if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 2){
+		    	condition = true;
+		    }
+	    }
+	    String returnqQuery = "query.epl";
+	    switch(Integer.parseInt(query)){
+	    case 1 : returnqQuery = "query.epl"; break;
+	    case 2: returnqQuery = "query2.epl"; break;
+	    }
+		return returnqQuery;
+	}
+	
 	public static void main(String[] args) {
 		
 		SimpleLayout layout = new SimpleLayout();
 	    ConsoleAppender appender = new ConsoleAppender(new SimpleLayout());
 	    Logger.getRootLogger().addAppender(appender);
 	    Logger.getRootLogger().setLevel((Level) Level.WARN);
-		
+	    
 		try {
-			
-			createEsperRuntime("../ProgettoDB/src/Progetto/query2.epl");
+			/*The following method takes in input the source file containing the query; 
+			 *
+			 * the attached files are :
+			 *
+			 * query.epl -> show a snapshot every thirty seconds of the most mentioned user 
+			 * within all the tweets received in the last minute
+			 * 
+			 * query2.epl -> show a snapshot every 1.5 seconds of the most mentioned user 
+			 * within all the tweets received in the last 3 seconds
+			 * 
+			 */
+			createEsperRuntime("../ProgettoDB/src/Progetto/" + userInput());
 			listenToTwitterStream(createTwitterStream());
 		} catch (TwitterException | IOException e) {
 			e.printStackTrace();
