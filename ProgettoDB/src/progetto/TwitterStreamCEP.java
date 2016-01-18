@@ -45,7 +45,7 @@ public class TwitterStreamCEP {
 	private static String userInput(){
 		String selection = "Select a query to perform by typing the corresponding number :"+
 				"\n1 - query.epl -> Most mentioned user, window 1 minute, snapshot 30 seconds"+
-				"\n2 - query2.epl -> Most mentioned user, window 3 seconds, snapshot 1.52 seconds";
+				"\n2 - query2.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds";
 		System.out.println(selection);
 	    Scanner input = new Scanner(System.in);
 	    String query = input.nextLine();
@@ -100,9 +100,11 @@ public class TwitterStreamCEP {
 		
 		public void update(EventBean[] newData, EventBean[] oldData) {
 			try {
+				System.out.println("Query performed");
 				if(newData != null){
-					EventBean event = newData[0];
-					System.out.println("The user most mentioned was : " + " " + event.getUnderlying().toString());
+					for(EventBean event : newData){
+						System.out.println("The user most mentioned was : " + " " + event.getUnderlying().toString());
+						}
 					}
 				} catch (Exception e) {
 				e.printStackTrace();
