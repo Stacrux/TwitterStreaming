@@ -100,8 +100,8 @@ public class TwitterStreamCEP {
 		
 		public void update(EventBean[] newData, EventBean[] oldData) {
 			try {
-				System.out.println("Query performed");
 				if(newData != null){
+					System.out.println("Query performed");
 					for(EventBean event : newData){
 						System.out.println("The user most mentioned was : " + " " + event.getUnderlying().toString());
 						}
@@ -163,6 +163,11 @@ public class TwitterStreamCEP {
 			public void onStatus(Status status) {
 				//for every mention in the tweet we generate an object
 				UserMentionEntity[] mentions  = status.getUserMentionEntities();
+				System.out.println("tweet received, mentions contained:---------");
+				for(UserMentionEntity mention : mentions){
+					System.out.println(mention.getName());
+				}
+				System.out.println("--------------------------------------------");
 				for(UserMentionEntity mention : mentions){
 					TwitterBean twitterBean = new TwitterBean(status, mention);				
 					cepRuntime.sendEvent(twitterBean);
@@ -198,11 +203,23 @@ public class TwitterStreamCEP {
 
 		long 	ansa = 150725695, 
 				masterchef = 222908821,
-				zayn = 176566242,
 				music_as_life = 1693516848,
+				disney = 67418441,
+				hearthstone = 1209608880,
+				leo_dicaprio = 133880286,
+				youtube	= 10228272,
+				gli_stockisti = 480312711,
+				fedez = 267138741, //il cantante
+				fedex = 134887156,//i pacchi
+				starbucks = 30973,
 				la_zanzara = 409500620; 
+		//da ragazzine
+		long 	zayn = 176566242,
+				bieber = 27260086;
 		
-		long[] query = {ansa, masterchef, zayn, music_as_life, la_zanzara};
+		long[] query = {ansa, masterchef, music_as_life, la_zanzara,
+						disney, hearthstone, leo_dicaprio, youtube,
+						gli_stockisti, starbucks, fedex, fedez, zayn, bieber};
 		
 		twitterStream.addListener(listener);
 		twitterStream.filter(new FilterQuery(query));
