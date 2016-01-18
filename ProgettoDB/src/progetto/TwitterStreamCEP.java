@@ -163,11 +163,13 @@ public class TwitterStreamCEP {
 			public void onStatus(Status status) {
 				//for every mention in the tweet we generate an object
 				UserMentionEntity[] mentions  = status.getUserMentionEntities();
-				System.out.println("tweet received, mentions contained:---------");
+				/*
+				if(mentions.length > 0)System.out.println("tweet received, mentions contained:---------");
 				for(UserMentionEntity mention : mentions){
-					System.out.println(mention.getName());
+					System.out.println("\t\t" + mention.getName());
 				}
-				System.out.println("--------------------------------------------");
+				if(mentions.length > 0)System.out.println("--------------------------------------------");
+				*/
 				for(UserMentionEntity mention : mentions){
 					TwitterBean twitterBean = new TwitterBean(status, mention);				
 					cepRuntime.sendEvent(twitterBean);
@@ -201,6 +203,24 @@ public class TwitterStreamCEP {
 			}
 		};
 
+		//filtro per lo strem
+		FilterQuery filterQuery = new FilterQuery();
+		
+		/*
+		 filtrare in base alla geolocation, usiamo un bounding box
+		 boundingbox -> prima angolo sin poi angolo dx
+		 utility per calcolare i dati da inserire:
+		 http://tools.geofabrik.de/calc/#type=geofabrik_standard&bbox=9.065263,45.393007,9.302486,45.5421&tab=1&proj=EPSG:4326&places=2
+		 MILANO : {9.06,45.39},{9.31,45.55}
+		*/
+		double[][] bb= {{9.06,45.39},{9.31,45.55}};
+		filterQuery.locations(bb);
+		/*
+		 filtrare in base all'id degli user
+		 
+		 utility per calcolare i dati da inserire:
+		 http://mytwitterid.com/
+		*/
 		long 	ansa = 150725695, 
 				masterchef = 222908821,
 				music_as_life = 1693516848,
@@ -216,13 +236,15 @@ public class TwitterStreamCEP {
 		//da ragazzine
 		long 	zayn = 176566242,
 				bieber = 27260086;
-		
 		long[] query = {ansa, masterchef, music_as_life, la_zanzara,
 						disney, hearthstone, leo_dicaprio, youtube,
 						gli_stockisti, starbucks, fedex, fedez, zayn, bieber};
 		
+		//filterQuery.follow(query);
+		
 		twitterStream.addListener(listener);
-		twitterStream.filter(new FilterQuery(query));
+		twitterStream.filter(filterQuery);
+		//twitterStream.sample();
 	}
 
 }
