@@ -1,6 +1,6 @@
 SELECT count(mentionedUser), mentionedUser
 FROM TwitterBean.win:time(30 seconds)
-WHERE (latitude > 9.06 and latitude < 45.39) and (longitude > 9.31  and longitude < 45.55) 
+WHERE (TwitterBean.longitude > 9.06 and TwitterBean.longitude < 45.39) and (TwitterBean.latitude > 9.31  and TwitterBean.latitude < 45.55) 
 group by mentionedUser
 output snapshot every 5 seconds
 ORDER BY count(mentionedUser) DESC limit 4

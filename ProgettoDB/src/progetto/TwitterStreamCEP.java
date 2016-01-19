@@ -46,7 +46,7 @@ public class TwitterStreamCEP {
 		String selection = "Select a query to perform by typing the corresponding number :"+
 				"\n1 - query.epl -> Most mentioned user, window 1 minute, snapshot 30 seconds"+
 				"\n2 - query2.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds"+
-				"\n3 - query3.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds";
+				"\n3 - query3.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds, with GeoLocalization (Milano)";
 		System.out.println(selection);
 	    Scanner input = new Scanner(System.in);
 	    String query = input.nextLine();
@@ -247,7 +247,6 @@ public class TwitterStreamCEP {
 		twitterStream.addListener(listener);
 		//twitterStream.filter(filterQuery);
 		twitterStream.sample();
-		//twitterStream.sample();
 	}
 
 }
