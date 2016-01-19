@@ -45,12 +45,13 @@ public class TwitterStreamCEP {
 	private static String userInput(){
 		String selection = "Select a query to perform by typing the corresponding number :"+
 				"\n1 - query.epl -> Most mentioned user, window 1 minute, snapshot 30 seconds"+
-				"\n2 - query2.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds";
+				"\n2 - query2.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds"+
+				"\n3 - query3.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds";
 		System.out.println(selection);
 	    Scanner input = new Scanner(System.in);
 	    String query = input.nextLine();
 	    boolean condition = false;
-	    if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 2){
+	    if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 3){
 	    	condition = true;
 	    }
 	    while(condition){
@@ -58,14 +59,15 @@ public class TwitterStreamCEP {
 	    	System.out.println("WRONG INPUT");
 	    	System.out.println(selection);
 	    	query = input.next();
-	    	if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 2){
+	    	if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 3){
 		    	condition = true;
 		    }
 	    }
 	    String returnqQuery = "query.epl";
 	    switch(Integer.parseInt(query)){
-	    case 1 : returnqQuery = "query.epl"; break;
+	    case 1: returnqQuery = "query1.epl"; break;
 	    case 2: returnqQuery = "query2.epl"; break;
+	    case 3: returnqQuery = "query3.epl"; break; 
 	    }
 		return returnqQuery;
 	}
@@ -82,7 +84,7 @@ public class TwitterStreamCEP {
 			 *
 			 * the attached files are :
 			 *
-			 * query.epl -> show a snapshot every thirty seconds of the most mentioned user 
+			 * query1.epl -> show a snapshot every thirty seconds of the most mentioned user 
 			 * within all the tweets received in the last minute
 			 * 
 			 * query2.epl -> show a snapshot every 1.5 seconds of the most mentioned user 
@@ -213,8 +215,8 @@ public class TwitterStreamCEP {
 		 http://tools.geofabrik.de/calc/#type=geofabrik_standard&bbox=9.065263,45.393007,9.302486,45.5421&tab=1&proj=EPSG:4326&places=2
 		 MILANO : {9.06,45.39},{9.31,45.55}
 		*/
-		double[][] bb= {{9.06,45.39},{9.31,45.55}};
-		filterQuery.locations(bb);
+		//double[][] bb= {{9.06,45.39},{9.31,45.55}};
+		//filterQuery.locations(bb);
 		/*
 		 filtrare in base all'id degli user
 		 
@@ -243,7 +245,8 @@ public class TwitterStreamCEP {
 		//filterQuery.follow(query);
 		
 		twitterStream.addListener(listener);
-		twitterStream.filter(filterQuery);
+		//twitterStream.filter(filterQuery);
+		twitterStream.sample();
 		//twitterStream.sample();
 	}
 
