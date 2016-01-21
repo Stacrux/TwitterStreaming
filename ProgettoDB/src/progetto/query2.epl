@@ -1,4 +1,4 @@
-SELECT count(mentionedUser), mentionedUser
+SELECT count(mentionedUser), mentionedUser, latitude, longitude
 FROM TwitterBean.win:time(5 seconds)
 group by mentionedUser
 output snapshot every 3 seconds

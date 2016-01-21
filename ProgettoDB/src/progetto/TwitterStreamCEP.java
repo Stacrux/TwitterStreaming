@@ -41,17 +41,22 @@ public class TwitterStreamCEP {
 	static private String CONSUMER_SECRET="IqH3wrYTMjz5CGyDwATyjEDbTFieoonII4UWIzA1Qg2nsoPUeb";
 	static private String ACCESS_TOKEN="4746987855-79dPGcxhOcalYRVkpDD36gwEa47ShNqarck53tO";
 	static private String ACCESS_TOKEN_SECRET="AEHbX4ddL1vi6j4uTM8y4tkU1Y5c0rRb0OqWub4vhlYuH";
+	
+	static private int cQuery;
+	
+	
 
 	private static String userInput(){
 		String selection = "Select a query to perform by typing the corresponding number :"+
 				"\n1 - query.epl -> Most mentioned user, window 1 minute, snapshot 30 seconds"+
 				"\n2 - query2.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds"+
-				"\n3 - query3.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds, with GeoLocalization (Milano)";
+				"\n3 - query3.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds, with GeoLocalization (Milano)"+
+				"\n4 - query4.epl -> Most mentioned chef in masterchef page";
 		System.out.println(selection);
 	    Scanner input = new Scanner(System.in);
 	    String query = input.nextLine();
 	    boolean condition = false;
-	    if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 3){
+	    if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 4){
 	    	condition = true;
 	    }
 	    while(condition){
@@ -59,15 +64,17 @@ public class TwitterStreamCEP {
 	    	System.out.println("WRONG INPUT");
 	    	System.out.println(selection);
 	    	query = input.next();
-	    	if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 3){
+	    	if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 4){
 		    	condition = true;
 		    }
 	    }
 	    String returnqQuery = "query.epl";
-	    switch(Integer.parseInt(query)){
+	    cQuery=Integer.parseInt(query);
+	    switch(cQuery){
 	    case 1: returnqQuery = "query1.epl"; break;
 	    case 2: returnqQuery = "query2.epl"; break;
-	    case 3: returnqQuery = "query3.epl"; break; 
+	    case 3: returnqQuery = "query3.epl"; break;
+	    case 4: returnqQuery = "query4.epl"; break; 
 	    }
 		return returnqQuery;
 	}
@@ -144,6 +151,7 @@ public class TwitterStreamCEP {
 		builder.setOAuthConsumerSecret(CONSUMER_SECRET);
 		builder.setOAuthAccessToken(ACCESS_TOKEN);
 		builder.setOAuthAccessTokenSecret(ACCESS_TOKEN_SECRET);
+		builder.setHttpConnectionTimeout(10000);
 		TwitterStreamFactory factory = new TwitterStreamFactory(builder.build());
 		TwitterStream twitterStream = factory.getInstance();
 		return twitterStream;
@@ -165,13 +173,13 @@ public class TwitterStreamCEP {
 			public void onStatus(Status status) {
 				//for every mention in the tweet we generate an object
 				UserMentionEntity[] mentions  = status.getUserMentionEntities();
-				/*
+				
 				if(mentions.length > 0)System.out.println("tweet received, mentions contained:---------");
 				for(UserMentionEntity mention : mentions){
-					System.out.println("\t\t" + mention.getName());
+					System.out.println("\t\t" + mention.getScreenName());
 				}
 				if(mentions.length > 0)System.out.println("--------------------------------------------");
-				*/
+				
 				for(UserMentionEntity mention : mentions){
 					TwitterBean twitterBean = new TwitterBean(status, mention);				
 					cepRuntime.sendEvent(twitterBean);
@@ -214,15 +222,17 @@ public class TwitterStreamCEP {
 		 utility per calcolare i dati da inserire:
 		 http://tools.geofabrik.de/calc/#type=geofabrik_standard&bbox=9.065263,45.393007,9.302486,45.5421&tab=1&proj=EPSG:4326&places=2
 		 MILANO : {9.06,45.39},{9.31,45.55}
-		*/
-		//double[][] bb= {{9.06,45.39},{9.31,45.55}};
-		//filterQuery.locations(bb);
+		 */
+		double[][] bb= {{-130.85,32.98},{-60.37,62.23}};
+		
 		/*
 		 filtrare in base all'id degli user
 		 
 		 utility per calcolare i dati da inserire:
 		 http://mytwitterid.com/
 		*/
+		
+		
 		long 	ansa = 150725695, 
 				masterchef = 222908821,
 				music_as_life = 1693516848,
@@ -235,18 +245,30 @@ public class TwitterStreamCEP {
 				fedex = 134887156,//i pacchi
 				starbucks = 30973,
 				la_zanzara = 409500620; 
-		//da ragazzine
+		//singers
 		long 	zayn = 176566242,
-				bieber = 27260086;
-		long[] query = {ansa, masterchef, music_as_life, la_zanzara,
+				bieber = 27260086,
+				selena_gomez = 23375688,
+				miley = 268414482,
+				madonna = 512700138;
+				
+		long[] followQuery = {ansa, masterchef, music_as_life, la_zanzara,
 						disney, hearthstone, leo_dicaprio, youtube,
 						gli_stockisti, starbucks, fedex, fedez, zayn, bieber};
+		long[] masterchefQuery = {masterchef};
+		long[] singerQuery={miley,zayn,bieber,selena_gomez,madonna};
 		
 		//filterQuery.follow(query);
 		
 		twitterStream.addListener(listener);
 		//twitterStream.filter(filterQuery);
-		twitterStream.sample();
+		switch(cQuery){
+		case 1: twitterStream.sample(); break;
+		case 3: filterQuery.locations(bb); twitterStream.filter(filterQuery); break;
+		case 2: filterQuery.follow(followQuery); twitterStream.filter(filterQuery); break;
+		case 4: filterQuery.follow(singerQuery); twitterStream.filter(filterQuery); break;
+		default : break;
+		}
 	}
 
 }
