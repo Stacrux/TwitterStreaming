@@ -1,5 +1,5 @@
 SELECT count(mentionedUser), mentionedUser
-FROM TwitterBean.win:time(60 seconds)
+FROM TwitterTuple.win:time(60 seconds)
 WHERE mentionedUser in ('justinbieber','zaynmalik','MileyCyrus','selenagomez')
 group by mentionedUser
 output snapshot every 30 seconds

@@ -1,5 +1,5 @@
-SELECT count(mentionedUser), mentionedUser, latitude, longitude
-FROM TwitterBean.win:time(5 seconds)
+SELECT count(mentionedUser), mentionedUser
+FROM TwitterTuple.win:time(30 seconds)
 group by mentionedUser
-output snapshot every 3 seconds
+output snapshot every 10 seconds
 ORDER BY count(mentionedUser) DESC limit 4

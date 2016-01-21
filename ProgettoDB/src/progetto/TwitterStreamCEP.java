@@ -48,10 +48,10 @@ public class TwitterStreamCEP {
 
 	private static String userInput(){
 		String selection = "Select a query to perform by typing the corresponding number :"+
-				"\n1 - query.epl -> Select 4 Most mentioned users over the sample stream, window 1 minute, snapshot 30 seconds"+
-				"\n2 - query2.epl -> Most 4 mentioned users over a set of pages, window 5 seconds, snapshot 3 seconds"+
-				"\n3 - query3.epl -> Most 4 mentioned users, tweets come from whole USA, query performed on the west coast zone"+
-				"\n4 - query4.epl -> Most 4 mentioned singer from a set of chosen ones";
+				"\n1 - Sample.epl -> Select 4 Most mentioned users over the sample stream, window 1 minute, snapshot 30 seconds"+
+				"\n2 - Follow.epl -> Most 4 mentioned users over a set of pages, window 5 seconds, snapshot 3 seconds"+
+				"\n3 - Location.epl -> Most 4 mentioned users, tweets come from whole USA, query performed on the west coast zone"+
+				"\n4 - Follow_Singers.epl -> Most 4 mentioned singers from a set of chosen ones";
 		System.out.println(selection);
 	    Scanner input = new Scanner(System.in);
 	    String query = input.nextLine();
@@ -71,10 +71,10 @@ public class TwitterStreamCEP {
 	    String returnqQuery = "query.epl";
 	    cQuery=Integer.parseInt(query);
 	    switch(cQuery){
-	    case 1: returnqQuery = "query1.epl"; break;
-	    case 2: returnqQuery = "query2.epl"; break;
-	    case 3: returnqQuery = "query3.epl"; break;
-	    case 4: returnqQuery = "query4.epl"; break; 
+	    case 1: returnqQuery = "Sample.epl"; break;
+	    case 2: returnqQuery = "Follow.epl"; break;
+	    case 3: returnqQuery = "Location.epl"; break;
+	    case 4: returnqQuery = "Follow_Singers.epl"; break; 
 	    }
 		return returnqQuery;
 	}
