@@ -4,5 +4,3 @@ WHERE longitude >= -112.92 and longitude <= -98.52 and latitude >= 35.02  and la
 group by mentionedUser
 output snapshot every 5 seconds
 ORDER BY count(mentionedUser) DESC limit 4
-
-   

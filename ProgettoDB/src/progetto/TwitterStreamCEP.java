@@ -50,8 +50,8 @@ public class TwitterStreamCEP {
 		String selection = "Select a query to perform by typing the corresponding number :"+
 				"\n1 - query.epl -> Most mentioned user, window 1 minute, snapshot 30 seconds"+
 				"\n2 - query2.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds"+
-				"\n3 - query3.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds, with GeoLocalization (Milano)"+
-				"\n4 - query4.epl -> Most mentioned chef in masterchef page";
+				"\n3 - query3.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds, with GeoLocalization"+
+				"\n4 - query4.epl -> Most mentioned singer";
 		System.out.println(selection);
 	    Scanner input = new Scanner(System.in);
 	    String query = input.nextLine();
@@ -176,9 +176,11 @@ public class TwitterStreamCEP {
 				
 				if(mentions.length > 0)System.out.println("tweet received, mentions contained:---------");
 				for(UserMentionEntity mention : mentions){
-					System.out.println("\t\t" + mention.getScreenName());
+					System.out.println("\t\t" + mention.getScreenName()+"\t Latitudine "+status.getGeoLocation().getLatitude()+"\t Longitudine "+status.getGeoLocation().getLongitude());
+					//System.out.println("\t\t" + mention.getScreenName()+"\t time zone"+status.getUser().getTimeZone()+"\t countri"+status.getUser().getWithheldInCountries());
 				}
 				if(mentions.length > 0)System.out.println("--------------------------------------------");
+				
 				
 				for(UserMentionEntity mention : mentions){
 					TwitterBean twitterBean = new TwitterBean(status, mention);				
@@ -264,7 +266,7 @@ public class TwitterStreamCEP {
 		//twitterStream.filter(filterQuery);
 		switch(cQuery){
 		case 1: twitterStream.sample(); break;
-		case 3: filterQuery.locations(bb); twitterStream.filter(filterQuery); break;
+		case 3: System.out.println("Ok"); filterQuery.locations(bb); twitterStream.filter(filterQuery); break;
 		case 2: filterQuery.follow(followQuery); twitterStream.filter(filterQuery); break;
 		case 4: filterQuery.follow(singerQuery); twitterStream.filter(filterQuery); break;
 		default : break;
