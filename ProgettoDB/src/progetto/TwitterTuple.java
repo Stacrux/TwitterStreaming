@@ -6,7 +6,7 @@ import java.util.Date;
 import twitter4j.Status;
 import twitter4j.UserMentionEntity;
 
-public class TwitterBean {
+public class TwitterTuple {
 
 	private String user;
 	private String lang;
@@ -86,11 +86,11 @@ public class TwitterBean {
 		UTcOffset = uTcOffset;
 	}
 
-	public TwitterBean() {
+	public TwitterTuple() {
 		
 	}
 	
-	public TwitterBean(Status status, UserMentionEntity mention) {
+	public TwitterTuple(Status status, UserMentionEntity mention) {
 		this.user = status.getUser().getScreenName();
 		this.lang = status.getUser().getLang();
 		this.followersCount = status.getUser().getFollowersCount();
@@ -101,8 +101,8 @@ public class TwitterBean {
 			this.longitude = -999.0;
 		}
 		else { 
-			this.latitude = status.getGeoLocation().getLongitude();
-			this.longitude = status.getGeoLocation().getLatitude();	
+			this.latitude = status.getGeoLocation().getLatitude();
+			this.longitude = status.getGeoLocation().getLongitude();	
 		}
 		this.UTcOffset = status.getUser().getUtcOffset();
 		this.timeZone = status.getUser().getTimeZone();
@@ -136,13 +136,13 @@ public class TwitterBean {
 
 	@Override
 	public String toString() {
-	/*	return "TwitterBean [user=" + user + ", lang=" + lang
+	/*	return "TwitterTuple [user=" + user + ", lang=" + lang
 				+ ", followersCount=" + followersCount + ", timeZone="
 				+ timeZone + ", latitude=" + latitude + ", longitude="
 				+ longitude + ", UTcOffset=" + UTcOffset + "]";
 	*/
 	
-		return "TwitterBean [user = " + user + "\tmention = " + mentions.getScreenName() + " ]";
+		return "TwitterTuple [user = " + user + "\tmention = " + mentions.getScreenName() + " ]";
 		
 	}
 

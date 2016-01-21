@@ -1,6 +1,0 @@
-SELECT count(mentionedUser), mentionedUser, latitude, longitude
-FROM TwitterBean.win:time(20 seconds)
-WHERE longitude >= -112.92 and longitude <= -98.52 and latitude >= 35.02  and latitude <= 45.76
-group by mentionedUser
-output snapshot every 5 seconds
-ORDER BY count(mentionedUser) DESC limit 4

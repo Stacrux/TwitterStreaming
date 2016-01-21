@@ -48,10 +48,10 @@ public class TwitterStreamCEP {
 
 	private static String userInput(){
 		String selection = "Select a query to perform by typing the corresponding number :"+
-				"\n1 - query.epl -> Most mentioned user, window 1 minute, snapshot 30 seconds"+
-				"\n2 - query2.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds"+
-				"\n3 - query3.epl -> Most mentioned user, window 5 seconds, snapshot 3 seconds, with GeoLocalization"+
-				"\n4 - query4.epl -> Most mentioned singer";
+				"\n1 - query.epl -> Select 4 Most mentioned users over the sample stream, window 1 minute, snapshot 30 seconds"+
+				"\n2 - query2.epl -> Most 4 mentioned users over a set of pages, window 5 seconds, snapshot 3 seconds"+
+				"\n3 - query3.epl -> Most 4 mentioned users, tweets come from whole USA, query performed on the west coast zone"+
+				"\n4 - query4.epl -> Most 4 mentioned singer from a set of chosen ones";
 		System.out.println(selection);
 	    Scanner input = new Scanner(System.in);
 	    String query = input.nextLine();
@@ -125,7 +125,7 @@ public class TwitterStreamCEP {
 	public static EPRuntime createEsperRuntime(String queryFileName) throws FileNotFoundException {
 		// Configuration
 		Configuration cepConfig = new Configuration();
-		cepConfig.addEventType("TwitterBean", TwitterBean.class.getName());
+		cepConfig.addEventType("TwitterTuple", TwitterTuple.class.getName());
 		// Setup provider, runtime and administrator
 		EPServiceProvider cep = EPServiceProviderManager.getProvider("TwitterStreamCEP", cepConfig);
 		cepRuntime = cep.getEPRuntime();
@@ -173,18 +173,28 @@ public class TwitterStreamCEP {
 			public void onStatus(Status status) {
 				//for every mention in the tweet we generate an object
 				UserMentionEntity[] mentions  = status.getUserMentionEntities();
-				
+				/*
 				if(mentions.length > 0)System.out.println("tweet received, mentions contained:---------");
 				for(UserMentionEntity mention : mentions){
-					System.out.println("\t\t" + mention.getScreenName()+"\t Latitudine "+status.getGeoLocation().getLatitude()+"\t Longitudine "+status.getGeoLocation().getLongitude());
-					//System.out.println("\t\t" + mention.getScreenName()+"\t time zone"+status.getUser().getTimeZone()+"\t countri"+status.getUser().getWithheldInCountries());
+					
+					if(cQuery == 3 && status.getGeoLocation() != null){
+						System.out.println("\t\t" + mention.getScreenName()+"\t tweeted at : "+
+										status.getGeoLocation());}
 				}
 				if(mentions.length > 0)System.out.println("--------------------------------------------");
-				
-				
+				*/
+				//filtro sui mentioned user, tenendo solo i tweet con mentions
 				for(UserMentionEntity mention : mentions){
-					TwitterBean twitterBean = new TwitterBean(status, mention);				
-					cepRuntime.sendEvent(twitterBean);
+					//filtro sulla location
+					if(cQuery == 3 && status.getGeoLocation() != null){
+						TwitterTuple twitterTuple = new TwitterTuple(status, mention);
+						cepRuntime.sendEvent(twitterTuple);
+					}
+					else if(cQuery != 3){
+						TwitterTuple twitterTuple = new TwitterTuple(status, mention);
+						cepRuntime.sendEvent(twitterTuple);
+					}		
+					
 				}
 			}
 
@@ -215,62 +225,69 @@ public class TwitterStreamCEP {
 			}
 		};
 
-		//filtro per lo strem
-		FilterQuery filterQuery = new FilterQuery();
-		
-		/*
-		 filtrare in base alla geolocation, usiamo un bounding box
-		 boundingbox -> prima angolo sin poi angolo dx
-		 utility per calcolare i dati da inserire:
-		 http://tools.geofabrik.de/calc/#type=geofabrik_standard&bbox=9.065263,45.393007,9.302486,45.5421&tab=1&proj=EPSG:4326&places=2
-		 MILANO : {9.06,45.39},{9.31,45.55}
-		 */
-		double[][] bb= {{-130.85,32.98},{-60.37,62.23}};
-		
-		/*
-		 filtrare in base all'id degli user
-		 
-		 utility per calcolare i dati da inserire:
-		 http://mytwitterid.com/
-		*/
-		
-		
-		long 	ansa = 150725695, 
-				masterchef = 222908821,
-				music_as_life = 1693516848,
-				disney = 67418441,
-				hearthstone = 1209608880,
-				leo_dicaprio = 133880286,
-				youtube	= 10228272,
-				gli_stockisti = 480312711,
-				fedez = 267138741, //il cantante
-				fedex = 134887156,//i pacchi
-				starbucks = 30973,
-				la_zanzara = 409500620; 
-		//singers
-		long 	zayn = 176566242,
-				bieber = 27260086,
-				selena_gomez = 23375688,
-				miley = 268414482,
-				madonna = 512700138;
-				
-		long[] followQuery = {ansa, masterchef, music_as_life, la_zanzara,
-						disney, hearthstone, leo_dicaprio, youtube,
-						gli_stockisti, starbucks, fedex, fedez, zayn, bieber};
-		long[] masterchefQuery = {masterchef};
-		long[] singerQuery={miley,zayn,bieber,selena_gomez,madonna};
-		
-		//filterQuery.follow(query);
-		
+
 		twitterStream.addListener(listener);
 		//twitterStream.filter(filterQuery);
 		switch(cQuery){
 		case 1: twitterStream.sample(); break;
-		case 3: System.out.println("Ok"); filterQuery.locations(bb); twitterStream.filter(filterQuery); break;
-		case 2: filterQuery.follow(followQuery); twitterStream.filter(filterQuery); break;
-		case 4: filterQuery.follow(singerQuery); twitterStream.filter(filterQuery); break;
-		default : break;
+		case 3: { 
+			//creo un filtro per lo strem
+			FilterQuery filterQuery = new FilterQuery();
+			/*
+			 filtrare in base alla geolocation, usiamo un bounding box
+			 boundingbox -> prima angolo sin poi angolo dx
+			 utility per calcolare i dati da inserire:
+			 http://tools.geofabrik.de/calc/#type=geofabrik_standard&bbox=9.065263,45.393007,9.302486,45.5421&tab=1&proj=EPSG:4326&places=2
+			 es : MILANO : {9.06,45.39},{9.31,45.55}
+			 */
+			//whole USA coordinates (long,lat)
+			double[][] bb= {{-128.94, 21.96}, {-58.44, 48.73}};	
+			filterQuery.locations(bb); twitterStream.filter(filterQuery); break;
 		}
+		case 2: {
+			//creo un filtro per lo strem
+			FilterQuery filterQuery = new FilterQuery();
+			/*
+			 filtrare in base all'id degli user
+			 
+			 utility per calcolare i dati da inserire:
+			 http://mytwitterid.com/
+			*/
+			long 	ansa = 150725695, 
+					masterchef = 222908821,
+					music_as_life = 1693516848,
+					disney = 67418441,
+					hearthstone = 1209608880,
+					leo_dicaprio = 133880286,
+					youtube	= 10228272,
+					gli_stockisti = 480312711,
+					fedez = 267138741, //il cantante
+					fedex = 134887156,//i pacchi
+					starbucks = 30973,
+					la_zanzara = 409500620,
+					zayn = 176566242,
+					bieber = 27260086; 
+
+			long[] followQuery = {ansa, masterchef, music_as_life, la_zanzara,
+					disney, hearthstone, leo_dicaprio, youtube,
+					gli_stockisti, starbucks, fedex, fedez, zayn, bieber};
+			
+			filterQuery.follow(followQuery); twitterStream.filter(filterQuery); break;
+		}
+		case 4: {
+			//creo un filtro per lo strem
+			FilterQuery filterQuery = new FilterQuery();
+			//singers
+			long 	zayn = 176566242,
+					bieber = 27260086,
+					selena_gomez = 23375688,
+					miley = 268414482,
+					madonna = 512700138;
+			long[] singerQuery={miley,zayn,bieber,selena_gomez,madonna};
+			filterQuery.follow(singerQuery); twitterStream.filter(filterQuery); break;
+		}
+		default : break;
+	}
 	}
 
 }
