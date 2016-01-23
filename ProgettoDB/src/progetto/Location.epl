@@ -1,6 +1,4 @@
-SELECT count(mentionedUser), mentionedUser, latitude, longitude
+SELECT user
 FROM TwitterTuple.win:time(60 seconds)
 WHERE (longitude >= -128.94 and longitude <= -108.53) and (latitude >= 20.31   and latitude <= 49.21)
-group by mentionedUser
 output snapshot every 20 seconds
-ORDER BY count(mentionedUser) DESC limit 4

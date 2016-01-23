@@ -41,72 +41,22 @@ public class TwitterStreamCEP {
 	static private String CONSUMER_SECRET="IqH3wrYTMjz5CGyDwATyjEDbTFieoonII4UWIzA1Qg2nsoPUeb";
 	static private String ACCESS_TOKEN="4746987855-79dPGcxhOcalYRVkpDD36gwEa47ShNqarck53tO";
 	static private String ACCESS_TOKEN_SECRET="AEHbX4ddL1vi6j4uTM8y4tkU1Y5c0rRb0OqWub4vhlYuH";
-	
+	//variable for letting the user test the four queries 
 	static private int cQuery;
 	
-	
-
-	private static String userInput(){
-		String selection = "Select a query to perform by typing the corresponding number :"+
-				"\n1 - Sample.epl -> Select 4 Most mentioned users over the sample stream, window 1 minute, snapshot 30 seconds"+
-				"\n2 - Follow.epl -> Most 4 mentioned users over a set of pages, window 5 seconds, snapshot 3 seconds"+
-				"\n3 - Location.epl -> Most 4 mentioned users, tweets come from whole USA, query performed on the west coast zone"+
-				"\n4 - Follow_Singers.epl -> Most 4 mentioned singers from a set of chosen ones";
-		System.out.println(selection);
-	    Scanner input = new Scanner(System.in);
-	    String query = input.nextLine();
-	    boolean condition = false;
-	    if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 4){
-	    	condition = true;
-	    }
-	    while(condition){
-	    	condition = false;
-	    	System.out.println("WRONG INPUT");
-	    	System.out.println(selection);
-	    	query = input.next();
-	    	if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 4){
-		    	condition = true;
-		    }
-	    }
-	    String returnqQuery = "query.epl";
-	    cQuery=Integer.parseInt(query);
-	    switch(cQuery){
-	    case 1: returnqQuery = "Sample.epl"; break;
-	    case 2: returnqQuery = "Follow.epl"; break;
-	    case 3: returnqQuery = "Location.epl"; break;
-	    case 4: returnqQuery = "Follow_Singers.epl"; break; 
-	    }
-		return returnqQuery;
-	}
-	
 	public static void main(String[] args) {
-		
-		SimpleLayout layout = new SimpleLayout();
+		//SimpleLayout layout = new SimpleLayout();
 	    ConsoleAppender appender = new ConsoleAppender(new SimpleLayout());
 	    Logger.getRootLogger().addAppender(appender);
 	    Logger.getRootLogger().setLevel((Level) Level.WARN);
-	    
 		try {
-			/*The following method takes in input the source file containing the query; 
-			 *
-			 * the attached files are :
-			 *
-			 * query1.epl -> show a snapshot every thirty seconds of the most mentioned user 
-			 * within all the tweets received in the last minute
-			 * 
-			 * query2.epl -> show a snapshot every 1.5 seconds of the most mentioned user 
-			 * within all the tweets received in the last 3 seconds
-			 * 
-			 */
+			/*The following method takes in input the source file containing the query; */
 			createEsperRuntime("../ProgettoDB/src/Progetto/" + userInput());
 			listenToTwitterStream(createTwitterStream());
-		} catch (TwitterException | IOException e) {
-			e.printStackTrace();
-		}
+		} catch (TwitterException | IOException e) {e.printStackTrace();}
 	}
 
 	public static class CEPListener implements UpdateListener {
-		
 		public void update(EventBean[] newData, EventBean[] oldData) {
 			try {
 				if(newData != null){
@@ -119,7 +69,6 @@ public class TwitterStreamCEP {
 				e.printStackTrace();
 			}
 		}
-
 	}	
 	
 	public static EPRuntime createEsperRuntime(String queryFileName) throws FileNotFoundException {
@@ -168,7 +117,6 @@ public class TwitterStreamCEP {
 	public static void listenToTwitterStream(twitter4j.TwitterStream twitterStream)
 			throws TwitterException, IOException {
 		StatusListener listener = new StatusListener() {
-
 			@Override
 			public void onStatus(Status status) {
 				//for every mention in the tweet we generate an object
@@ -194,100 +142,111 @@ public class TwitterStreamCEP {
 						TwitterTuple twitterTuple = new TwitterTuple(status, mention);
 						cepRuntime.sendEvent(twitterTuple);
 					}		
-					
 				}
 			}
-
 			@Override
-			public void onDeletionNotice(
-					StatusDeletionNotice statusDeletionNotice) {
-					//System.out.println("Got status deletion notice - id:" + statusDeletionNotice.getStatusId());
-			}
-
+			public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {/*DOSOMETHING*/}
 			@Override
-			public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
-				//System.out.println("Got track limitation notice: " + numberOfLimitedStatuses);
-			}
-
+			public void onTrackLimitationNotice(int numberOfLimitedStatuses) {/*DOSOMETHING*/}
 			@Override
-			public void onException(Exception ex) {
-				ex.printStackTrace();
-			}
-
+			public void onException(Exception ex) {ex.printStackTrace();}
 			@Override
-			public void onScrubGeo(long userId, long upToStatusId) {
-				//System.out.println("Got scrub geo - userId:" + userId + " upToStatusId:" + upToStatusId);
-			}
-
+			public void onScrubGeo(long userId, long upToStatusId) {/*DOSOMETHING*/}
 			@Override
-			public void onStallWarning(StallWarning stallWarning) {
-				// System.out.println("Got stall warning :" + stallWarning);
-			}
+			public void onStallWarning(StallWarning stallWarning) {/*DOSOMETHING*/}
 		};
-
-
 		twitterStream.addListener(listener);
-		//twitterStream.filter(filterQuery);
 		switch(cQuery){
-		case 1: twitterStream.sample(); break;
-		case 3: { 
-			//creo un filtro per lo strem
-			FilterQuery filterQuery = new FilterQuery();
-			/*
-			 filtrare in base alla geolocation, usiamo un bounding box
-			 boundingbox -> prima angolo sin poi angolo dx
-			 utility per calcolare i dati da inserire:
-			 http://tools.geofabrik.de/calc/#type=geofabrik_standard&bbox=9.065263,45.393007,9.302486,45.5421&tab=1&proj=EPSG:4326&places=2
-			 es : MILANO : {9.06,45.39},{9.31,45.55}
-			 */
-			//whole USA coordinates (long,lat)
-			double[][] bb= {{-128.94, 21.96}, {-58.44, 48.73}};	
-			filterQuery.locations(bb); twitterStream.filter(filterQuery); break;
-		}
-		case 2: {
-			//creo un filtro per lo strem
-			FilterQuery filterQuery = new FilterQuery();
-			/*
-			 filtrare in base all'id degli user
-			 
-			 utility per calcolare i dati da inserire:
-			 http://mytwitterid.com/
-			*/
-			long 	ansa = 150725695, 
-					masterchef = 222908821,
-					music_as_life = 1693516848,
-					disney = 67418441,
-					hearthstone = 1209608880,
-					leo_dicaprio = 133880286,
-					youtube	= 10228272,
-					gli_stockisti = 480312711,
-					fedez = 267138741, //il cantante
-					fedex = 134887156,//i pacchi
-					starbucks = 30973,
-					la_zanzara = 409500620,
-					zayn = 176566242,
-					bieber = 27260086; 
-
-			long[] followQuery = {ansa, masterchef, music_as_life, la_zanzara,
-					disney, hearthstone, leo_dicaprio, youtube,
-					gli_stockisti, starbucks, fedex, fedez, zayn, bieber};
-			
-			filterQuery.follow(followQuery); twitterStream.filter(filterQuery); break;
-		}
-		case 4: {
-			//creo un filtro per lo strem
-			FilterQuery filterQuery = new FilterQuery();
-			//singers
-			long 	zayn = 176566242,
-					bieber = 27260086,
-					selena_gomez = 23375688,
-					miley = 268414482,
-					madonna = 512700138;
-			long[] singerQuery={miley,zayn,bieber,selena_gomez,madonna};
-			filterQuery.follow(singerQuery); twitterStream.filter(filterQuery); break;
-		}
-		default : break;
+			case 1: twitterStream.sample(); break;
+			case 3: { 
+				//creo un filtro per lo strem
+				FilterQuery filterQuery = new FilterQuery();
+				/*
+				 filtrare in base alla geolocation, usiamo un bounding box
+				 boundingbox -> prima angolo sin poi angolo dx
+				 utility per calcolare i dati da inserire:
+				 http://tools.geofabrik.de/calc/#type=geofabrik_standard&bbox=9.065263,45.393007,9.302486,45.5421&tab=1&proj=EPSG:4326&places=2
+				 es : MILANO : {9.06,45.39},{9.31,45.55}
+				 */
+				//whole USA coordinates (long,lat)
+				double[][] bb= {{-128.94, 21.96}, {-58.44, 48.73}};	
+				filterQuery.locations(bb); twitterStream.filter(filterQuery); break;
+			}
+			case 2: {
+				//creo un filtro per lo strem
+				FilterQuery filterQuery = new FilterQuery();
+				/*
+				 filtrare in base all'id degli user
+				 
+				 utility per calcolare i dati da inserire:
+				 http://mytwitterid.com/
+				*/
+				long 	ansa = 150725695, leo_dicaprio = 133880286, gli_stockisti = 480312711,
+						youtube	= 10228272, la_zanzara = 409500620, masterchef = 222908821,
+						music_as_life = 1693516848,	hearthstone = 1209608880, starbucks = 30973,
+						disney = 67418441, zayn = 176566242, fedez = 267138741, //il cantante 
+						fedex = 134887156,//i pacchi
+						bieber = 27260086; 
+	
+				long[] followQuery = {ansa, masterchef, music_as_life, la_zanzara,
+						disney, hearthstone, leo_dicaprio, youtube,
+						gli_stockisti, starbucks, fedex, fedez, zayn, bieber};
+				
+				filterQuery.follow(followQuery); twitterStream.filter(filterQuery); break;
+			}
+			case 4: {
+				//creo un filtro per lo strem
+				FilterQuery filterQuery = new FilterQuery();
+				//singers
+				long 	zayn = 176566242,
+						bieber = 27260086,
+						selena_gomez = 23375688,
+						miley = 268414482,
+						shakira = 44409004,
+						eminem = 22940219,
+						rihanna = 79293791,
+						madonna = 512700138;
+				long[] singerQuery={miley,zayn,bieber,selena_gomez,madonna,
+						rihanna,shakira,eminem};
+				filterQuery.follow(singerQuery); twitterStream.filter(filterQuery); break;
+			}
+			default : break;
 	}
 	}
 
+	
+	private static String userInput(){
+		String selection = "Select a query to perform by typing the corresponding number :"+
+				"\n1 - Sample.epl -> Select 4 Most mentioned users over the sample stream, window 1 minute, snapshot 30 seconds"+
+				"\n2 - Follow.epl -> 4 Most mentioned users over a set of pages"+
+				"\n3 - Location.epl -> select users and their location; tweets come from whole USA, query performed on the west coast zone"+
+				"\n4 - Follow_Singers.epl -> 2 Most mentioned singers from a set of chosen ones";
+		System.out.println(selection);
+	    Scanner input = new Scanner(System.in);
+	    String query = input.nextLine();
+	    boolean condition = false;
+	    if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 4){
+	    	condition = true;
+	    }
+	    while(condition){
+	    	condition = false;
+	    	System.out.println("WRONG INPUT");
+	    	System.out.println(selection);
+	    	query = input.next();
+	    	if(Integer.parseInt(query) < 1 || Integer.parseInt(query) > 4){
+		    	condition = true;
+		    }
+	    }
+	    String returnqQuery = "query.epl";
+	    cQuery=Integer.parseInt(query);
+	    switch(cQuery){
+	    case 1: returnqQuery = "Sample.epl"; break;
+	    case 2: returnqQuery = "Follow.epl"; break;
+	    case 3: returnqQuery = "Location.epl"; break;
+	    case 4: returnqQuery = "Follow_Singers.epl"; break; 
+	    }
+		return returnqQuery;
+	}
+	
+	
 }
